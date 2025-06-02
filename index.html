@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini Jam Player</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h2> Mini Jam Player</h2>
+
+  <div>
+    <h3>Available Songs</h3>
+    <ul id="song-list"></ul>
+  </div>
+
+  <div>
+    <h3> Shared Queue</h3>
+    <ul id="queue"></ul>
+  </div>
+
+  <div>
+    <h3>Playback Controls</h3>
+    <button onclick="play()">Play</button>
+    <button onclick="stop()">Stop</button>
+    <p>Current State: <span id="play-state">Stopped</span></p>
+    <p>Now Playing: <span id="now-playing">None</span></p>
+  </div>
+
+  <script>
+    const songs = ['Song A', 'Song B', 'Song C', 'Song D'];
+    const socket = io('http://localhost:3000');
+
+    const songList = document.getElementById('song-list');
+    const queue = document.getElementById('queue');
+    const playState = document.getElementById('play-state');
+    const nowPlaying = document.getElementById('now-playing');
+
+    // Render available songs
+    songs.forEach(song => {
+      const li = document.createElement('li');
+      li.innerHTML = `${song} <button onclick="addToQueue('${song}')">Add</button>`;
+      songList.appendChild(li);
+    });
+
+    // Socket listeners
+    socket.on('init', ({ queue, isplaying }) => {
+      updateQueue(queue);
+      updatePlayState(isplaying);
+    });
+
+    socket.on('queueupdated', (queue) => {
+      updateQueue(queue);
+    });
+
+    socket.on('play', (currentSong) => {
+      playState.textContent = 'Playing';
+      nowPlaying.textContent = currentSong;
+    });
+
+    socket.on('stop', () => {
+      playState.textContent = 'Stopped';
+      nowPlaying.textContent = 'None';
+    });
+
+    // Emit actions
+    function addToQueue(song) {
+      socket.emit('addtoqueue', song);
+    }
+
+    function play() {
+      socket.emit('play');
+    }
+
+    function stop() {
+      socket.emit('stop');
+    }
+
+    // Helpers
+    function updateQueue(queue) {
+      queue.innerHTML = '';
+      queue.forEach(song => {
+        const li = document.createElement('li');
+        li.textContent = song;
+        queue.appendChild(li);
+      });
+    }
+
+    function updatePlayState(isPlaying) {
+      playState.textContent = isPlaying ? 'Playing' : 'Stopped';
+      nowPlaying.textContent = isPlaying ? (queue.firstChild?.textContent || 'Unknown') : 'None';
+    }
+  </script>
+</body>
+</html>
