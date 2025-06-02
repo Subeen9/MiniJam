@@ -4,12 +4,7 @@ This is a socket programming for mini Jam of Spotify.
 
 A lightweight, collaborative music queue system built using **Node.js**, **Express**, and **Socket.IO**. Users can add songs to a shared queue, control playback (play/stop), and view current playback status in real time through a simple browser interface.
 
-## Structure
 
-MiniJam/
-├── server.js          # Express + Socket.IO server
-├── index.html        # Frontend UI
-└── README.md         # This file
 
 
 ## Getting Started
